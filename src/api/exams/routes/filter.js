@@ -25,7 +25,8 @@ export default function filter(req, res, next) {
   if (query.mapReduce) {
     co(function* () {
       try {
-        let docs = yield Exams.mapReduce({
+        let docs = yield Exams.mapReduce(, function (errArg, resArg) {
+            ({
           query: query.filter,
           scope: {
             q: query.tokens,
@@ -34,6 +35,7 @@ export default function filter(req, res, next) {
           limit: req.query.limit,
           map: mapReduce.map,
           reduce: mapReduce.reduce
+        }).call(this, errArg, resArg.results, resArg.stats);
         })
         for (let i = 0; i < docs.length; i++) {
           docs[i] = docs[i].value
